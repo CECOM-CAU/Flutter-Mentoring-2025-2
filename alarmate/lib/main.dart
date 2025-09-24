@@ -29,11 +29,7 @@ class AlarmListPage extends StatefulWidget {
 class _AlarmListPageState extends State<AlarmListPage> {
   final List<Alarm> _alarms = [];
   int _selectedIndex = 0;
-
-  int _selectedHour = 1;
-  int _selectedMinute = 00;
-  bool _isPm = true;
-
+  
   void _addAlarm() async {
     debugPrint("new alarm page");
     final newAlarm = await Navigator.push<Alarm>(
@@ -114,30 +110,6 @@ class _AlarmListPageState extends State<AlarmListPage> {
             decoration: BoxDecoration(
               color: Colors.grey.shade300,
               borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildPicker(
-                    items: hours,
-                    selectedIndex: _selectedHour - 1,
-                    onSelectedItemChanged: (i) =>
-                        setState(() => _selectedHour = i + 1),
-                  ),
-                  _buildPicker(
-                    items: minutes,
-                    selectedIndex: _selectedMinute,
-                    onSelectedItemChanged: (i) =>
-                        setState(() => _selectedMinute = i),
-                  ),
-                  _buildPicker(
-                    items: const ['AM', 'PM'],
-                    selectedIndex: _isPm ? 1 : 0,
-                    onSelectedItemChanged: (i) =>
-                        setState(() => _isPm = (i == 1)),
-                  ),
-                ],
-
             ),
           ),
           const Padding(
