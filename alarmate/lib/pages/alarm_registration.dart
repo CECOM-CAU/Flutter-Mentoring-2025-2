@@ -14,7 +14,7 @@ class _AlarmRegistrationPageState extends State<AlarmRegistrationPage> {
   int _selectedHour = 1;
   int _selectedMinute = 00;
   bool _isPm = true;
-  String _repeat = 'Repeat';
+  String _repeat = 'Once';
   String _label = 'Label';
   String _sound = 'Sound';
   bool _snooze = true;
@@ -131,9 +131,9 @@ class _AlarmRegistrationPageState extends State<AlarmRegistrationPage> {
               margin: const EdgeInsets.all(8),
               child: Column(
                 children: [
-                  _buildRow('Repeat', trailing: _repeat, onTap: () {
+                  _buildRow('Once', trailing: _repeat, onTap: () {
                     setState(() {
-                      _repeat = _repeat == 'Repeat' ? 'Daily' : 'Repeat';
+                      _repeat = _repeat == 'Once' ? 'Daily' : 'Once';
                     });
                   }),
                   Padding(
@@ -147,6 +147,7 @@ class _AlarmRegistrationPageState extends State<AlarmRegistrationPage> {
                             ? Expanded(
                                 child: TextField(
                                   controller: _labelController..text = _label,
+                                  textAlign: TextAlign.end,
                                   autofocus: true,
                                   onSubmitted: (value) {
                                     setState(() {
