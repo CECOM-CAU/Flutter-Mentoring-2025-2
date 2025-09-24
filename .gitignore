@@ -1,3 +1,4 @@
 *.ppt*
 *.doc*
 ~*.*
+.DS_Store
