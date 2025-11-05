@@ -1,17 +1,20 @@
-// pages/device_page.dart
+// lib/pages/device_page.dart
 import 'package:flutter/material.dart';
 
 class DevicePage extends StatelessWidget {
   const DevicePage({super.key});
 
+  // -----------------------------------------------------------------
+  // Hard-coded list (mentees can add/remove items later)
+  // -----------------------------------------------------------------
+  static final List<String> _rooms = [
+    'Living Room',
+    'Living Room',
+    'Living Room',
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final devices = [
-      'Living Room',
-      'Living Room',
-      'Living Room',
-    ];
-
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -22,15 +25,24 @@ class DevicePage extends StatelessWidget {
             style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
-          ...devices.map((room) => _buildDeviceTile(room)).toList(),
+
+          // ---------- Device tiles ----------
+          ..._rooms.map((room) => _buildDeviceTile(room)).toList(),
+
           const SizedBox(height: 16),
-          _buildAddDeviceButton(context),
+
+          // ---------- Add-device button ----------
+          _buildAddDeviceButton(),
+
           const Spacer(),
         ],
       ),
     );
   }
 
+  // -----------------------------------------------------------------
+  // One device tile (exactly like the screenshot)
+  // -----------------------------------------------------------------
   Widget _buildDeviceTile(String room) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -55,6 +67,7 @@ class DevicePage extends StatelessWidget {
               ),
             ],
           ),
+          // Simple white “switch” placeholder
           Container(
             width: 40,
             height: 24,
@@ -68,7 +81,10 @@ class DevicePage extends StatelessWidget {
     );
   }
 
-  Widget _buildAddDeviceButton(BuildContext context) {
+  // -----------------------------------------------------------------
+  // “+” button at the bottom of the list
+  // -----------------------------------------------------------------
+  Widget _buildAddDeviceButton() {
     return Center(
       child: Container(
         width: double.infinity,
@@ -77,7 +93,11 @@ class DevicePage extends StatelessWidget {
           color: Colors.grey[300],
           borderRadius: BorderRadius.circular(12),
         ),
-        child: const Icon(Icons.add, size: 32, color: Colors.black54),
+        child: const Icon(
+          Icons.add,
+          size: 32,
+          color: Colors.black54,
+        ),
       ),
     );
   }
