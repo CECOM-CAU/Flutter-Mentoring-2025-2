@@ -1,6 +1,10 @@
 // pages/alarm_list_page.dart
+import 'dart:developer';
+
+import 'package:alarmate/services/alarm_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'alarm_registration.dart';
 import '../models/alarm.dart';
 import '../models/time.dart';
@@ -13,7 +17,6 @@ class AlarmListPage extends StatefulWidget {
 }
 
 class _AlarmListPageState extends State<AlarmListPage> {
-  List<Alarm> _alarms = [];
 
   // For "Wake up" preview box
   int _nextHour = 7;
@@ -29,7 +32,8 @@ class _AlarmListPageState extends State<AlarmListPage> {
 
   void _updateNextAlarm() {
     final now = DateTime.now();
-    final activeAlarms = _alarms.where((a) => a.isActive).toList();
+    final Service = Provider.of<AlarmService>(context, listen: false);
+    final activeAlarms = Service.alarms.where((a) => a.isActive).toList();
 
     if (activeAlarms.isEmpty) {
       _nextHour = 7;
@@ -65,19 +69,10 @@ class _AlarmListPageState extends State<AlarmListPage> {
       context,
       MaterialPageRoute(builder: (_) => const AlarmRegistrationPage()),
     );
-    if (newAlarm != null) {
-      setState(() {
-        _alarms.add(newAlarm);
-        _updateNextAlarm();
-      });
-    }
   }
 
-  void _toggleActive(int index) {
-    setState(() {
-      _alarms[index].isActive = !_alarms[index].isActive;
-      _updateNextAlarm();
-    });
+  void _toggleActive(Alarm alarm) {
+    Provider.of<AlarmService>(context,listen: false).toggleAlarm(alarm);
   }
 
   Widget _buildPicker({
@@ -113,41 +108,43 @@ class _AlarmListPageState extends State<AlarmListPage> {
   }
 
   Widget _buildResponsiveAlarmList() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isWide = constraints.maxWidth > 600;
+    return Consumer<AlarmService>(
+        builder: (context, service,_) {
+        final alarms = service.alarms;
+        return LayoutBuilder(builder: (context, constraints){          
+          final isWide = constraints.maxWidth > 600;
+          if (alarms.isEmpty) {
+            return const Center(
+              child: Text("There's no alarm registered."),
+            );
+          }
 
-        if (_alarms.isEmpty) {
-          return const Center(
-            child: Text("There's no alarm registered."),
-          );
-        }
-
-        if (isWide) {
-          return GridView.builder(
-            padding: const EdgeInsets.all(16),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 3.5,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-            ),
-            itemCount: _alarms.length,
-            itemBuilder: (context, i) => _buildAlarmCard(i),
-          );
-        } else {
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: _alarms.length,
-            itemBuilder: (context, i) => _buildAlarmCard(i, isList: true),
-          );
-        }
-      },
+          if (isWide) {
+            return GridView.builder(
+              padding: const EdgeInsets.all(16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 3.5,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+              ),
+              itemCount: alarms.length,
+              itemBuilder: (_, i) => _buildAlarmCard(alarms[i]),
+            );
+          } else {
+            return ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: alarms.length,
+              itemBuilder: (_, i) => _buildAlarmCard(alarms[i], isList: true),
+            );
+          }
+          },
+        );
+      }
     );
   }
 
-  Widget _buildAlarmCard(int index, {bool isList = false}) {
-    final alarm = _alarms[index];
+  Widget _buildAlarmCard(Alarm alarm, {bool isList = false}) {
     final time12 = _to12Hour(alarm.time);
 
     return Card(
@@ -160,9 +157,12 @@ class _AlarmListPageState extends State<AlarmListPage> {
           '${time12['hour']}:${time12['minute']} ${time12['period']} - ${alarm.label}',
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
+        subtitle: Text(alarm.date == null ? "" : alarm.date.toString(), 
+          style: const TextStyle(color: Colors.black54, fontSize: 14),
+        ),
         trailing: Switch(
           value: alarm.isActive,
-          onChanged: (_) => _toggleActive(index),
+          onChanged: (_) => _toggleActive(alarm),
           activeColor: Colors.black,
         ),
       ),

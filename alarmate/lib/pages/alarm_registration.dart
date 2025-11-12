@@ -2,6 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:alarmate/models/alarm.dart';
 import 'package:alarmate/models/time.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import '../services/alarm_service.dart';
 
 class AlarmRegistrationPage extends StatefulWidget {
   const AlarmRegistrationPage({super.key});
@@ -19,6 +22,7 @@ class _AlarmRegistrationPageState extends State<AlarmRegistrationPage> {
   String _sound = 'Sound';
   bool _snooze = true;
   bool _editingLabel = false;
+  DateTime? _selectedDate;          // <-- NEW
   final TextEditingController _labelController = TextEditingController();
 
   @override
@@ -41,9 +45,13 @@ class _AlarmRegistrationPageState extends State<AlarmRegistrationPage> {
         '${hour24.toString().padLeft(2, '0')}:${_selectedMinute.toString().padLeft(2, '0')}';
     final alarm = Alarm(
       time: time,
+      date: _selectedDate == null ? null : DateFormat('yyyy-MM-dd').format(_selectedDate!),
       label: _label,
       isActive: true,
     );
+
+    // 1. Add to global service
+    Provider.of<AlarmService>(context, listen: false).addAlarm(alarm);
     Navigator.pop(context, alarm);
   }
 
@@ -237,6 +245,23 @@ class _AlarmRegistrationPageState extends State<AlarmRegistrationPage> {
                       onChanged: (val) => setState(() => _snooze = val),
                     ),
                   ),
+                  Divider(height: 1, thickness: 0.5, color: Colors.grey[400]),
+                  _buildRow(
+                    'Date',
+                    trailing: _selectedDate == null
+                        ? 'Every day'
+                        : DateFormat('EEE, MMM d').format(_selectedDate!),
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime(2030),
+                      );
+                      setState(() => _selectedDate = picked);
+                    },
+                  ),
+                  Divider(height: 1, thickness: 0.5, color: Colors.grey[400]),
                 ],
               ),
             ),
