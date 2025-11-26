@@ -6,10 +6,14 @@ import 'pages/calendar_page.dart';
 import 'pages/device_page.dart';
 import 'services/alarm_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  final alarmService = await AlarmService.instance;
+
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => AlarmService(),
+    ChangeNotifierProvider<AlarmService>(
+      create: (_) => alarmService,
       child: const MyApp(),
     ),
   );
